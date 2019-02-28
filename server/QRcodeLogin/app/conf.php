@@ -1,9 +1,9 @@
 <?php 
 session_start();
 //mongo
-$conf['mongo']['host'] = '127.0.0.1';
+$conf['mongo']['host'] = '192.168.1.229';
 $conf['mongo']['port'] = '27017';
-$conf['mongo']['db'] = 'qrcode_login'; 
+$conf['mongo']['db'] = 'qrcode_login';
 $conf['mongo']['collection'] = 'qrcode'; 
 
 //图片存储路径

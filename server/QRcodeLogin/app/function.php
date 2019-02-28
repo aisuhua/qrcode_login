@@ -1,4 +1,5 @@
-<?php 
+<?php
+require_once '../vendor/autoload.php';
 require_once 'conf.php';
 require_once 'qrcode.php';
 
@@ -23,12 +24,12 @@ function buildQRcode($source){
 //mongo	保存
 function saveSource($source){
 	$collection = getDBCollection(conf('mongo.collection'));
-	$collection->insert(array('_id' => $source, 'login' => 0));
+	$collection->insertOne(array('_id' => $source, 'login' => 0));
 }
 //ajax轮询检查是否登录		登录成功返回user，否则为false 
 function checkSource($source){
 	$collection = getDBCollection(conf('mongo.collection'));
-	$sou = $collection->findone(array('_id' => $source));
+	$sou = $collection->findOne(array('_id' => $source));
 	if($sou && $sou['login'] === 1){
 		return $sou['user'];
 	}
@@ -37,7 +38,7 @@ function checkSource($source){
 //检查登录  返回  1 登录成功  10 source有误  11 此source已使用过  21 无此user(暂无此项)
 function checkSource4Login($source, $user){
 	$collection = getDBCollection(conf('mongo.collection'));
-	$sou = $collection->findone(array('_id' => $source));
+	$sou = $collection->findOne(array('_id' => $source));
 	$r = 10;
 	if($sou && isset($sou['login'])){
 		if($sou['login'] === 0){
@@ -48,7 +49,7 @@ function checkSource4Login($source, $user){
 	}
 	//保存登录状态
 	if($r == 1){
-		$collection->update(
+		$collection->updateOne(
 				array('_id' => $source), 
 				array('$set' => array('login' => 1, 'user' => $user)), 
 				array('safe'=>true)
@@ -60,11 +61,12 @@ function checkSource4Login($source, $user){
 function getDBCollection($collection){
 	global $mongo;
 	if(!$mongo){
-		$mongo = new Mongo(conf('mongo.host').':'.conf('mongo.port'));
+		$mongo = new MongoDB\Client('mongodb://' . conf('mongo.host').':'.conf('mongo.port'));
 	}
 	$db = conf('mongo.db');
 	return $mongo->$db->$collection;
 }
+
 //取配置
 function conf($s){
 	global $conf;
